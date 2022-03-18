@@ -8,9 +8,15 @@ import Grid from '@mui/material/Grid';
 import Snackbar from '@mui/material/Snackbar';
 import Typography from '@mui/material/Typography';
 import logo from '../../assets/logo.svg';
+import {isEmail, isStrongPassword} from 'validator';
+
+
 
 
 export default function LoginForm() {
+  const [fieldError, setFieldError] = useState({ emailField: false, passwordField: false });
+  
+
   const [showAlert, setShowAlert] = useState(false);
   const validateForm = (event) => {
     event.preventDefault()
@@ -20,6 +26,17 @@ export default function LoginForm() {
 
     // Add validation code here
 
+    let emailres = isEmail(email);
+    let pwdres= isStrongPassword(password)
+
+    if (!emailres) {
+      setFieldError({ emailField: true });
+    } else if (!pwdres) {
+      setFieldError({ passwordField: true });
+    } else {
+      setFieldError({ emailField: false, passwordField: false });
+      setShowAlert("Login Successful");
+    }
   }
 
   const handleSubmit = (event) => {
@@ -30,9 +47,10 @@ export default function LoginForm() {
       password: data.get('password'),
     });
     validateForm(event);
-    setShowAlert("Login Successful");
+    
   };
 
+  
   return (
     <>
       {showAlert &&
@@ -77,7 +95,7 @@ export default function LoginForm() {
           <Typography component="h1" variant="h5">
             Sign in
           </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
+          <Box component="form" onSubmit={handleSubmit} sx={{ mt: 1 }}>
             <TextField
               margin="normal"
               required
@@ -85,6 +103,7 @@ export default function LoginForm() {
               id="email"
               label="Email Address"
               name="email"
+              error={Boolean(fieldError.emailField)}
               autoComplete="email"
               autoFocus
             />
@@ -96,6 +115,7 @@ export default function LoginForm() {
               label="Password"
               type="password"
               id="password"
+              error={Boolean(fieldError.passwordField)}
               autoComplete="current-password"
             />
             <Button
