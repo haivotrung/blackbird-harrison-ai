@@ -11,6 +11,8 @@ import logo from '../../assets/logo.svg';
 
 
 export default function LoginForm() {
+  const [error, setError] = useState({email: false, password: false});
+
   const [showAlert, setShowAlert] = useState(false);
   const validateForm = (event) => {
     event.preventDefault()
@@ -18,9 +20,19 @@ export default function LoginForm() {
     const email = data.get('email');
     const password = data.get('password');
 
-    // Add validation code here
-
-  }
+    const validator = require("email-validator");
+    const strongRegex = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#%&])(?=.{8,})");
+    
+    if (validator.validate(email) && strongRegex.test(password)) {
+      setError({email: false, password: false});
+      setShowAlert("Login Successful");
+    } else if (!validator.validate(email)) {
+      setError({email: true});
+    } else if (!strongRegex.test(password)) {
+      setError({password: true});
+    }
+    
+  } 
 
   const handleSubmit = (event) => {
     event.preventDefault();
@@ -30,7 +42,6 @@ export default function LoginForm() {
       password: data.get('password'),
     });
     validateForm(event);
-    setShowAlert("Login Successful");
   };
 
   return (
@@ -85,6 +96,8 @@ export default function LoginForm() {
               id="email"
               label="Email Address"
               name="email"
+              error={error.email}
+              helperText={error.email ? "Please enter a valid email address" : ""}
               autoComplete="email"
               autoFocus
             />
@@ -96,6 +109,8 @@ export default function LoginForm() {
               label="Password"
               type="password"
               id="password"
+              error={error.password}
+              helperText={error.password ? "Please enter a valid password" : ""}
               autoComplete="current-password"
             />
             <Button
